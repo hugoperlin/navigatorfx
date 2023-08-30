@@ -1,5 +1,4 @@
 package io.github.hugoperlin.navigatorfx;
-
 import java.io.IOException;
 import java.net.URL;
 

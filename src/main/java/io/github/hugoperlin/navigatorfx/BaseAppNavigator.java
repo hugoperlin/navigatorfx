@@ -1,6 +1,5 @@
 package io.github.hugoperlin.navigatorfx;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 /**
  * Classe responsável por criar uma aplicação que permite a 
@@ -74,6 +74,30 @@ public abstract class BaseAppNavigator extends Application{
         root.getChildren().add(tela);
     }
 
+    /**
+     * Método responsável por trocar todo o conteúdo da janela por uma
+     * nova cena. A nova cena será empilhada sobre a cena anterior,
+     * e a cena anterior ficará invisível.     * 
+     * 
+     * @param screen Objeto do tipo ScreenRegistry que indica qual o fxml
+     * e seu controlador.
+     * 
+     * @param controller Objeto da classe de controle da tela.
+     */
+
+    public final static void pushScreen(String nomeTela,Callback controller){
+        ScreenRegistry screen = pegaTela(nomeTela);
+        if(screen instanceof ScreenRegistryFXML){
+            ((ScreenRegistryFXML)screen).setControler(controller);
+        }
+        if(root.getChildren().size() > 0){
+            root.getChildren().get(root.getChildren().size()-1).setVisible(false);
+        }
+
+        Parent tela = screen.getRoot();
+        root.getChildren().add(tela);
+    }
+
     
         
     /***
@@ -102,6 +126,54 @@ public abstract class BaseAppNavigator extends Application{
     public final static void changeScreenRegion(String nomeTela, BorderPaneRegion regiao){
         try{
             ScreenRegistry screenPiece = pegaTela(nomeTela);
+            BorderPane borderPane = (BorderPane) root.getChildren().get(root.getChildren().size()-1);
+            Parent root = screenPiece.getRoot();
+            
+            switch(regiao){
+                case LEFT: 
+                    borderPane.setLeft(root);
+                break;
+                case RIGHT: 
+                    borderPane.setRight(root);
+                break;
+                case TOP: 
+                    borderPane.setTop(root);
+                break;
+                case BOTTOM: 
+                    borderPane.setBottom(root);
+                break;
+                case CENTER:
+                    borderPane.setCenter(root);
+                break;
+                
+            }
+        }catch(Exception e){
+            System.out.println("PROBLEMA AO CARREGAR O FXML!!! O root da cena é um BorderPane?");
+            e.printStackTrace();
+            Platform.exit();
+        }
+    }
+
+
+    /**
+     * Método que permite substituir somente uma região da tela. Importante que
+     * para o correto funcionamento, a tela que está sendo mostrada deve ter
+     * como elemento root um objeto do tipo BorderPane.
+     * 
+     * @param screenPiece objeto que indica o fxml e seu controlador que será inseridos em 
+     * uma parte da janela.
+     * @param regiao localização onde a parte será inserida.
+     * 
+     * @param controller Objeto de controle da tela
+     */
+
+    public final static void changeScreenRegion(String nomeTela, BorderPaneRegion regiao, Callback controller){
+        try{
+            ScreenRegistry screenPiece = pegaTela(nomeTela);
+            if(screenPiece instanceof ScreenRegistryFXML){
+                ((ScreenRegistryFXML)screenPiece).setControler(controller);
+            }
+            
             BorderPane borderPane = (BorderPane) root.getChildren().get(root.getChildren().size()-1);
             Parent root = screenPiece.getRoot();
             
